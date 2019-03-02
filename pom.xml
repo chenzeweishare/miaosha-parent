@@ -15,6 +15,7 @@
         <module>miaosha-product</module>
         <module>miaosha-order</module>
         <module>miaosha-common</module>
+        <module>miaosha-gateway</module>
     </modules>
 
     <parent>

@@ -3,7 +3,6 @@ package com.miaosha.order.service.impl;
 
 import java.util.List;
 
-import com.alibaba.fescar.spring.annotation.GlobalTransactional;
 import com.miaosha.common.exception.MiaoShaException;
 import com.miaosha.order.OrderLog;
 import com.miaosha.order.dao.OrderLogDao;
@@ -14,6 +13,7 @@ import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author czw
@@ -51,8 +51,8 @@ public class OrderLogServiceImpl implements OrderLogService {
      * @param userId
      * @return
      */
-    //@Transactional
-    @GlobalTransactional
+    @Transactional
+    //@GlobalTransactional(timeoutMills = 300000, name = "create-order-tx")
     @Override
     public OrderLog saveOrderLog(Long productId, Long userId) {
         String lockKey = "orderKey";
@@ -80,6 +80,7 @@ public class OrderLogServiceImpl implements OrderLogService {
             if (count != 1) {
                 throw new MiaoShaException("创建订单成功, 扣减库存失败");
             }
+            //int error = 10 / 0;
             return orderLog;
         } finally {
             lock.unlock();
