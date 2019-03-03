@@ -14,4 +14,4 @@ spring:
 
 security:
   basic:
-    enabled: false               # 开启基于HTTP basic的认证
+    enabled: false                                                                   # 是否基于HTTP basic的认证
