@@ -1,0 +1,21 @@
+##redis配置##
+redis.ip=127.0.0.1
+redis.port=6379
+redis.password=
+#最大连接数
+redis.pool.maxActive=500
+#最小连接数
+redis.pool.maxIdle=200
+#连接超时时间
+redis.pool.maxWait=1000
+redis.pool.testOnBorrow=true
+
+
+
+## ActiveMQ Configuration
+activemq.brokerURL=tcp\://localhost\:61616
+activemq.userName=admin
+activemq.password=admin
+activemq.pool.maxConnections=10
+#queueName
+activemq.queueName=miaosha_queue
