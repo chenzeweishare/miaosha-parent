@@ -1,6 +1,8 @@
 package com.miaosha.product.service.impl;
 
 
+import java.util.List;
+
 import com.miaosha.product.Product;
 import com.miaosha.product.dao.ProductDao;
 import com.miaosha.product.service.ProductService;
@@ -30,6 +32,11 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public int modifyUpProductStock(Long id) {
         return productDao.modifyUpProductStock(id);
+    }
+
+    @Override
+    public List<Product> getProducts() {
+        return productDao.findAll();
     }
 }
 

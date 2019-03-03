@@ -16,4 +16,5 @@ public interface OrderLogService {
 
     List<OrderLog> getOrderLogs(Long userId);
 
+    OrderLog createOrderLog(Long productId, Long userId);
 }

@@ -1,5 +1,11 @@
 package com.miaosha.product.controller;
 
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+
+import com.miaosha.common.redis.RedisKeyPrefix;
+import com.miaosha.common.redis.RedisUtil;
 import com.miaosha.product.Product;
 import com.miaosha.product.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +18,14 @@ public class ProductController {
 
     @Autowired
     private ProductService productService;
+
+    @PostConstruct
+    private void init(){
+        List<Product> miaoshaProducts = productService.getProducts();
+        for (Product product : miaoshaProducts) {
+            RedisUtil.set(RedisKeyPrefix.PRODUCT_STOCK + "_" + product.getId(), String.valueOf(product.getStock()));
+        }
+    }
 
     /**
      * 查看商品详情

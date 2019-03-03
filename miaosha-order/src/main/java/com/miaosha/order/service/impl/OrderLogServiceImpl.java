@@ -68,7 +68,7 @@ public class OrderLogServiceImpl implements OrderLogService {
             }
             OrderLog orderLog = OrderLog.builder()
                     .productId(productId)
-                    .userId(1000L)
+                    .userId(userId)
                     .amount(product.getOriginalPrice())
                     .name(product.getName())
                     .build();
@@ -91,6 +91,40 @@ public class OrderLogServiceImpl implements OrderLogService {
     @Override
     public List<OrderLog> getOrderLogs(Long userId) {
         return orderLogDao.findByUserId(userId);
+    }
+
+    /**
+     * 1. 下单
+     * 2. 减库存
+     * 3. 下单或者减库存失败前面都需要合理设置
+     * @param productId
+     * @param userId
+     * @return
+     */
+    @Override
+    public OrderLog createOrderLog(Long productId, Long userId) {
+        Product product = productFeignClient.getProduct(productId);
+        if (null == product) {
+            throw new MiaoShaException("无相关的商品");
+        }
+        if (product.getStock() <= 0) {
+            throw new MiaoShaException("该商品已无库存");
+        }
+        OrderLog orderLog = OrderLog.builder()
+                .productId(productId)
+                .userId(userId)
+                .amount(product.getOriginalPrice())
+                .name(product.getName())
+                .build();
+        orderLogDao.save(orderLog);
+        if (orderLog.getId() == null || orderLog.getId() < 0) {
+            throw new MiaoShaException("创建订单失败, 请稍后再试");
+        }
+        int count = productFeignClient.modifyDownProductStock(productId);
+        if (count != 1) {
+            throw new MiaoShaException("创建订单成功, 扣减库存失败");
+        }
+        return orderLog;
     }
 }
 

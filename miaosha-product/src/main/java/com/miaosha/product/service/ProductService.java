@@ -1,5 +1,7 @@
 package com.miaosha.product.service;
 
+import java.util.List;
+
 import com.miaosha.product.Product;
 
 /**
@@ -13,4 +15,6 @@ public interface ProductService {
     int modifyDownProductStock(Long id);
 
     int modifyUpProductStock(Long id);
+
+    List<Product> getProducts();
 }
