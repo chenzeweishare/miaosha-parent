@@ -9,7 +9,15 @@ eureka:
   client:
     serviceUrl:
       defaultZone: http://localhost:8761/eureka/  #将自己8761注册到8762上
-logging:                                # 配置日志级别，让hibernate打印出执行的SQL
+
+
+
+management:
+  security:
+    enabled: false
+
+# 配置日志级别，让hibernate打印出执行的SQL
+logging:
   level:
     root: INFO
     org.hibernate: INFO
@@ -19,3 +27,4 @@ logging:                                # 配置日志级别，让hibernate打�
     org.springframework.transaction: INFO   #事务日志
 # 参考文档：http://projects.spring.io/spring-cloud/docs/1.0.3/spring-cloud.html#_standalone_mode
 # 参考文档：http://my.oschina.net/buwei/blog/618756
+
