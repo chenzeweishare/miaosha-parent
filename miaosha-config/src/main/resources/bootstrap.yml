@@ -11,7 +11,7 @@ spring:
           search-paths: miaosha-config-repo
           #username:                                                                 # Git仓库的账号
           #password:                                                                 # Git仓库的密码
-
+#测试分支
 security:
   basic:
     enabled: false                                                                   # 是否基于HTTP basic的认证
