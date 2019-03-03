@@ -17,6 +17,8 @@
         <module>miaosha-common</module>
         <module>miaosha-gateway</module>
         <module>miaosha-config</module>
+        <module>miaosha-sharding</module>
+        <module>miaosha-mq</module>
     </modules>
 
     <parent>
