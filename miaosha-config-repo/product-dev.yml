@@ -28,6 +28,17 @@ eureka:
   instance:
     prefer-ip-address: true
 
+redis:
+  password: 
+  port: 6379
+  ip: 127.0.0.1
+  pool:
+    maxIdle: 200
+    testOnBorrow: true
+    maxWait: 1000
+    maxActive: 500
+
+
 management:
   security:
     enabled: false
