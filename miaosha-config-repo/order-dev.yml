@@ -16,6 +16,12 @@ spring:
     username: root
     password: 123
     driver-class-name: com.mysql.jdbc.Driver
+  activemq:
+    broker-url: tcp://127.0.0.1:61616
+    user: admin
+    password: admin
+    pool:
+      max-connections: 10
 logging:                                # 配置日志级别，让hibernate打印出执行的SQL
   level:
     root: INFO
