@@ -1,4 +1,4 @@
-package com.miaosha.common;
+package com.miaosha.common.eum;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

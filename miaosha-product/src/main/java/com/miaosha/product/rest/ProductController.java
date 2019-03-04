@@ -1,4 +1,4 @@
-package com.miaosha.product.controller;
+package com.miaosha.product.rest;
 
 import java.util.List;
 
