@@ -25,6 +25,9 @@ public class OrderController {
     @Autowired
     private MQProducer mqProducer;
 
+    @Autowired
+    private RedisUtil redisUtil;
+
     /**
      * jvm速度快于redis
      */
@@ -63,15 +66,15 @@ public class OrderController {
      */
     @GetMapping("/order/miaosha/save")
     public Message createOrderLog(@RequestParam Long productId) {
-        if (productSoldOutMap.get(productId)) {
+        if (productSoldOutMap.get(productId) != null) {
             Result.getErrorMessage("商品已抢完");
         }
-        Long stock = RedisUtil.decr(RedisKeyPrefix.PRODUCT_STOCK + "_" + productId);
+        Long stock = redisUtil.decr(RedisKeyPrefix.PRODUCT_STOCK + "_" + productId);
         if (stock == null) {
             Result.getErrorMessage("商品数据还未准备好");
         }
         if (stock < 0) {
-            RedisUtil.incr(RedisKeyPrefix.PRODUCT_STOCK + "_" + productId);
+            redisUtil.incr(RedisKeyPrefix.PRODUCT_STOCK + "_" + productId);
             productSoldOutMap.put(productId, true);
             Result.getErrorMessage("商品已抢完");
         }
@@ -80,8 +83,8 @@ public class OrderController {
             orderLog = orderLogService.createOrderLog(productId, 1000L);
         } catch (Exception e) {
             //TODO 这里存在一定问题, 如果是失败, 这边就incr
-            RedisUtil.incr(RedisKeyPrefix.PRODUCT_STOCK + "_" + productId);
-            productSoldOutMap.put(productId, false);
+            redisUtil.incr(RedisKeyPrefix.PRODUCT_STOCK + "_" + productId);
+            productSoldOutMap.remove(productId);
             e.printStackTrace();
         }
         return Result.getMessage(orderLog);
@@ -105,12 +108,12 @@ public class OrderController {
         //    Result.getErrorMessage("排队中，请耐心等待");
         //}
 
-        Long stock = RedisUtil.decr(RedisKeyPrefix.PRODUCT_STOCK + "_" + productId);
-        if (stock == null) {
+        Long stock = redisUtil.decr(RedisKeyPrefix.PRODUCT_STOCK + "_" + productId);
+        if (null == stock) {
             Result.getErrorMessage("商品数据还未准备好");
         }
         if (stock < 0) {
-            RedisUtil.incr(RedisKeyPrefix.PRODUCT_STOCK + "_" + productId);
+            redisUtil.incr(RedisKeyPrefix.PRODUCT_STOCK + "_" + productId);
             productSoldOutMap.put(productId, true);
             Result.getErrorMessage("商品已抢完");
         }

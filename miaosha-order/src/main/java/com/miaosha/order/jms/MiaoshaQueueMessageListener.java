@@ -1,8 +1,16 @@
 package com.miaosha.order.jms;
 
-import javax.jms.*;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.MessageListener;
+import javax.jms.TextMessage;
 
 import com.alibaba.fastjson.JSONObject;
+import com.miaosha.common.constant.CommonConstant;
 import com.miaosha.common.redis.RedisKeyPrefix;
 import com.miaosha.common.redis.RedisUtil;
 import com.miaosha.order.OrderLog;
@@ -10,7 +18,6 @@ import com.miaosha.order.controller.OrderController;
 import com.miaosha.order.service.OrderLogService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.core.JmsTemplate;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -19,17 +26,17 @@ public class MiaoshaQueueMessageListener implements MessageListener {
     @Autowired
     private JmsTemplate jmsTemplate;
 
-    @Autowired
-    private Destination miaoshaQueue;
 
     @Autowired
     private OrderLogService orderService;
 
+    @Autowired
+    private RedisUtil redisUtil;
+
     /**
      * 采用ThreadPoolExecutor方法更加专业;
      */
-    @Autowired
-    private ThreadPoolTaskExecutor threadPool;
+    private static final ThreadPoolExecutor threadPool = new ThreadPoolExecutor(CommonConstant.System.processors, 3 * CommonConstant.System.processors, 60, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(1000));
 
     public void onMessage(Message message) {
         TextMessage msg = (TextMessage) message;
@@ -59,10 +66,8 @@ public class MiaoshaQueueMessageListener implements MessageListener {
                 } catch (Exception e) {
                     e.printStackTrace();
                     //还原缓存里的库存并清除内存里的商品售完标记
-                    RedisUtil.incr(RedisKeyPrefix.PRODUCT_STOCK + "_" + productId);
-                    if (OrderController.productSoldOutMap.get(productId)) {
-                        OrderController.productSoldOutMap.put(productId, false);
-                    }
+                    redisUtil.incr(RedisKeyPrefix.PRODUCT_STOCK + "_" + productId);
+                    OrderController.productSoldOutMap.remove(productId);
                 } finally {
                     //删除排队标记
                     //RedisUtil.del(CommonMethod.getMiaoshaOrderWaitFlagRedisKey(String.valueOf(order.getUserId()), String.valueOf(productId)));

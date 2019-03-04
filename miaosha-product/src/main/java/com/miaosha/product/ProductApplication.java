@@ -12,6 +12,7 @@ import org.springframework.cloud.netflix.feign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.client.RestTemplate;
+import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
@@ -36,11 +37,17 @@ public class ProductApplication {
      */
     @Bean
     public JedisPool getJedisPool(){
-        JedisPoolConfig config = new JedisPoolConfig();
-        config.setMaxIdle(10);
-        config.setMaxTotal(1000);
-        config.setMaxWaitMillis(1000);
-        JedisPool pool = new JedisPool(config, "127.0.0.1",  6379,1000);
+        JedisPoolConfig poolConfig=new JedisPoolConfig();
+        poolConfig.setMaxIdle(5);
+        poolConfig.setMinIdle(1);
+        poolConfig.setTestOnBorrow(true);
+        poolConfig.setTestOnReturn(true);
+        poolConfig.setTestWhileIdle(true);
+        poolConfig.setNumTestsPerEvictionRun(10);
+        poolConfig.setTimeBetweenEvictionRunsMillis(60000);
+        JedisPool pool = new JedisPool(poolConfig, "127.0.0.1",  6379,1000);
+        Jedis resource = pool.getResource();
+        log.info("resource, {}", resource);
         log.error("initJedisPool" );
         return pool;
     }

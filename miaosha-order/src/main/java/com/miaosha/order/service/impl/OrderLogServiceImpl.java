@@ -9,8 +9,6 @@ import com.miaosha.order.dao.OrderLogDao;
 import com.miaosha.order.feign.ProductFeignClient;
 import com.miaosha.order.service.OrderLogService;
 import com.miaosha.product.Product;
-import org.redisson.api.RLock;
-import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,8 +26,8 @@ public class OrderLogServiceImpl implements OrderLogService {
     @Autowired
     private ProductFeignClient productFeignClient;
 
-    @Autowired
-    private RedissonClient redissonClient;
+//    @Autowired
+//    private RedissonClient redissonClient;
 
     @Override
     public OrderLog getOrderLog(Long id) {
@@ -55,10 +53,10 @@ public class OrderLogServiceImpl implements OrderLogService {
     //@GlobalTransactional(timeoutMills = 300000, name = "create-order-tx")
     @Override
     public OrderLog saveOrderLog(Long productId, Long userId) {
-        String lockKey = "orderKey";
-        RLock lock = redissonClient.getLock("lockKey");
-        lock.lock();
-        try {
+        //String lockKey = "orderKey";
+        //RLock lock = redissonClient.getLock("lockKey");
+        //lock.lock();
+        //try {
             Product product = productFeignClient.getProduct(productId);
             if (null == product) {
                 throw new MiaoShaException("无相关的商品");
@@ -82,9 +80,9 @@ public class OrderLogServiceImpl implements OrderLogService {
             }
             //int error = 10 / 0;
             return orderLog;
-        } finally {
-            lock.unlock();
-        }
+        //} finally {
+        //    lock.unlock();
+        //}
     }
 
 
