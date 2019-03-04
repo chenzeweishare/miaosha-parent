@@ -1,7 +1,10 @@
 package com.miaosha.order;
 
+import javax.jms.Queue;
+
 import com.miaosha.common.redis.RedisUtil;
 import lombok.extern.log4j.Log4j2;
+import org.apache.activemq.command.ActiveMQQueue;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
@@ -65,6 +68,12 @@ public class OrderApplication {
         log.error("initRedisUtil" );
         return new RedisUtil();
     }
+
+    @Bean
+    public Queue queue() {
+        return new ActiveMQQueue("order.queue");
+    }
+
 
     public static void main(String[] args) {
         SpringApplication.run(OrderApplication.class, args);

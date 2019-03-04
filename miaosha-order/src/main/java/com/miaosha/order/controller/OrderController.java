@@ -3,13 +3,12 @@ package com.miaosha.order.controller;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.miaosha.common.exception.MiaoShaException;
 import com.miaosha.common.redis.RedisKeyPrefix;
 import com.miaosha.common.redis.RedisUtil;
 import com.miaosha.common.result.Message;
 import com.miaosha.common.result.Result;
 import com.miaosha.order.OrderLog;
-import com.miaosha.order.jms.MQProducer;
+import com.miaosha.order.jms.Producer;
 import com.miaosha.order.service.OrderLogService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,7 +22,7 @@ public class OrderController {
     private OrderLogService orderLogService;
 
     @Autowired
-    private MQProducer mqProducer;
+    private Producer producer;
 
     @Autowired
     private RedisUtil redisUtil;
@@ -98,31 +97,29 @@ public class OrderController {
      */
     @GetMapping("/order/miaosha/v2/save")
     public Message createOrderLogV2(@RequestParam Long productId) {
-        if (productSoldOutMap.get(productId)) {
-            Result.getErrorMessage("商品已抢完");
-
-            throw new MiaoShaException("商品已抢完");
-        }
+        //if (productSoldOutMap.get(productId) != null) {
+        //    Result.getErrorMessage("商品已抢完");
+        //}
         //设置排队标记，超时时间根据业务情况决定，类似分布式锁
         //if (RedisUtil.set(CommonMethod.getMiaoshaOrderWaitFlagRedisKey(1000 + "", String.valueOf(productId)), "", "NX", "EX", 60)) {
         //    Result.getErrorMessage("排队中，请耐心等待");
         //}
 
-        Long stock = redisUtil.decr(RedisKeyPrefix.PRODUCT_STOCK + "_" + productId);
-        if (null == stock) {
-            Result.getErrorMessage("商品数据还未准备好");
-        }
-        if (stock < 0) {
-            redisUtil.incr(RedisKeyPrefix.PRODUCT_STOCK + "_" + productId);
-            productSoldOutMap.put(productId, true);
-            Result.getErrorMessage("商品已抢完");
-        }
+//        Long stock = redisUtil.decr(RedisKeyPrefix.PRODUCT_STOCK + "_" + productId);
+//        if (null == stock) {
+//            Result.getErrorMessage("商品数据还未准备好");
+//        }
+//        if (stock < 0) {
+//            redisUtil.incr(RedisKeyPrefix.PRODUCT_STOCK + "_" + productId);
+//            productSoldOutMap.put(productId, true);
+//            Result.getErrorMessage("商品已抢完");
+//        }
         OrderLog orderLog = OrderLog.builder()
                 .userId(1000L)
                 .productId(productId)
                 .build();
-        mqProducer.sendMessage(orderLog);
-        return Result.getMessage(orderLog);
+        producer.send(orderLog);
+        return Result.getMessage("已经进入队列中, 请稍后查看订单");
     }
 
 

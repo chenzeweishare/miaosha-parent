@@ -6,22 +6,19 @@ import java.util.concurrent.TimeUnit;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
-import javax.jms.MessageListener;
 import javax.jms.TextMessage;
 
 import com.alibaba.fastjson.JSONObject;
 import com.miaosha.common.constant.CommonConstant;
-import com.miaosha.common.redis.RedisKeyPrefix;
 import com.miaosha.common.redis.RedisUtil;
 import com.miaosha.order.OrderLog;
-import com.miaosha.order.controller.OrderController;
 import com.miaosha.order.service.OrderLogService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Component;
 
 @Component
-public class MiaoshaQueueMessageListener implements MessageListener {
+public class Consumer {
 
     @Autowired
     private JmsTemplate jmsTemplate;
@@ -57,21 +54,22 @@ public class MiaoshaQueueMessageListener implements MessageListener {
         //创建秒杀订单
         threadPool.execute(new Runnable() {
             public void run() {
-                try {
-                    OrderLog realOrder = orderService.createOrderLog(order.getProductId(), order.getUserId());
-                    //设置用户是否已经秒杀成功过某个商品的标记
-                    //RedisUtil.set(CommonMethod.getMiaoshaOrderRedisKey(String.valueOf(order.getUserId()), String.valueOf(productId)), realOrder);
-                    //删除排队标记
-                    //RedisUtil.del(CommonMethod.getMiaoshaOrderWaitFlagRedisKey(String.valueOf(order.getUserId()), String.valueOf(productId)));
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    //还原缓存里的库存并清除内存里的商品售完标记
-                    redisUtil.incr(RedisKeyPrefix.PRODUCT_STOCK + "_" + productId);
-                    OrderController.productSoldOutMap.remove(productId);
-                } finally {
-                    //删除排队标记
-                    //RedisUtil.del(CommonMethod.getMiaoshaOrderWaitFlagRedisKey(String.valueOf(order.getUserId()), String.valueOf(productId)));
-                }
+//                try {
+//                    OrderLog realOrder = orderService.createOrderLog(order.getProductId(), order.getUserId());
+//                    //设置用户是否已经秒杀成功过某个商品的标记
+//                    //RedisUtil.set(CommonMethod.getMiaoshaOrderRedisKey(String.valueOf(order.getUserId()), String.valueOf(productId)), realOrder);
+//                    //删除排队标记
+//                    //RedisUtil.del(CommonMethod.getMiaoshaOrderWaitFlagRedisKey(String.valueOf(order.getUserId()), String.valueOf(productId)));
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                    //还原缓存里的库存并清除内存里的商品售完标记
+//                    //redisUtil.incr(RedisKeyPrefix.PRODUCT_STOCK + "_" + productId);
+//                    //OrderController.productSoldOutMap.remove(productId);
+//                } finally {
+//                    //删除排队标记
+//                    //RedisUtil.del(CommonMethod.getMiaoshaOrderWaitFlagRedisKey(String.valueOf(order.getUserId()), String.valueOf(productId)));
+//                }
+                orderService.createOrderLog(order.getProductId(), order.getUserId());
             }
         });
     }
