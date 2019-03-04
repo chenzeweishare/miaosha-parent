@@ -24,7 +24,7 @@ public class RequestCert {
         String uri = request.getRequestURI();
         String ctx = request.getContextPath();
         uri = uri.substring(ctx.length());
-        //log.info(App.serverDomain + uri + "?" + parameters.remove("PARAMETERS"));
+        log.info(App.serverDomain + uri + "?" + parameters.remove("PARAMETERS"));
 
         //测试不需要
         if (!App.debug) {
@@ -37,7 +37,7 @@ public class RequestCert {
             if(sign.equals(getSign(parameters, signKey))){
                 return true;
             }
-            //log.info("Request Verify Failure.");
+            log.info("Request Verify Failure.");
         }
         return true;
     }
