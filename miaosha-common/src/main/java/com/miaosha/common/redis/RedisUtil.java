@@ -6,24 +6,27 @@ import java.util.Map;
 import java.util.Set;
 
 import com.alibaba.fastjson.JSON;
-import com.miaosha.common.spring.SpringContextHolder;
+import lombok.extern.log4j.Log4j2;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
+@Log4j2
+@Component
 public class RedisUtil {
 
-    private static final Logger log = Logger.getLogger(RedisUtil.class);
-    private static JedisPool jedisPool = SpringContextHolder.getBean(JedisPool.class);
+    @Autowired
+    private  JedisPool jedisPool;
 
     /**
      * 获取Jedis实例
      * 
      * @return
      */
-    public synchronized static Jedis getJedis() {
+    public synchronized  Jedis getJedis() {
         try {
             if (jedisPool != null) {
                 Jedis resource = jedisPool.getResource();
@@ -42,9 +45,9 @@ public class RedisUtil {
      * 
      * @param jedis
      */
-    public static void returnResource(final Jedis jedis) {
+    public  void returnResource(final Jedis jedis) {
         if (jedis != null) {
-            jedisPool.returnResource(jedis);
+            jedisPool.close();
         }
     }
     
@@ -53,7 +56,7 @@ public class RedisUtil {
      * @param key 键
      * @return 值
      */
-    public static String get(String key) {
+    public  String get(String key) {
         String value = null;
         Jedis jedis = null;
         try {
@@ -73,7 +76,7 @@ public class RedisUtil {
     /**
 	 * 获取当个对象
 	 * */
-	public static <T> T get(String prefix, String key,  Class<T> clazz) {
+	public  <T> T get(String prefix, String key,  Class<T> clazz) {
 		 Jedis jedis = null;
 		 try {
 			 jedis =  jedisPool.getResource();
@@ -90,7 +93,7 @@ public class RedisUtil {
 	/**
 	 * 获取当个对象
 	 * */
-	public static <T> T get(String key,  Class<T> clazz) {
+	public  <T> T get(String key,  Class<T> clazz) {
 		Jedis jedis = null;
 		try {
 			jedis =  jedisPool.getResource();
@@ -103,7 +106,7 @@ public class RedisUtil {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public static <T> T stringToBean(String str, Class<T> clazz) {
+	public  <T> T stringToBean(String str, Class<T> clazz) {
 		if(str == null || str.length() <= 0 || clazz == null) {
 			 return null;
 		}
@@ -128,7 +131,7 @@ public class RedisUtil {
      * @return
      * @throws Exception
      */
-    public static boolean set(String key, String value) {
+    public  boolean set(String key, String value) {
         Jedis jedis = null;
         try {
             jedis = getJedis();
@@ -144,7 +147,7 @@ public class RedisUtil {
         }
     }
     
-    public static boolean set(String key, String value, String nxxx, String expx, long time) {
+    public  boolean set(String key, String value, String nxxx, String expx, long time) {
         Jedis jedis = null;
         try {
             jedis = getJedis();
@@ -165,7 +168,7 @@ public class RedisUtil {
      * @param key
      * @param seconds
      */
-     public static void expire(String key, int seconds) {
+     public  void expire(String key, int seconds) {
          Jedis jedis = null;
          try {
         	 jedis = getJedis();
@@ -182,7 +185,7 @@ public class RedisUtil {
      * @param key
      * @return
      */
-    public static boolean del(String key) {
+    public  boolean del(String key) {
         Jedis jedis = null;
         try {
             jedis = getJedis();
@@ -206,7 +209,7 @@ public class RedisUtil {
      * @param value
      * @return
      */
-    public static boolean set(String key, Object value) {
+    public  boolean set(String key, Object value) {
         Jedis jedis = null;
         try {
             String objectJson = JSONObject.fromObject(value).toString();
@@ -230,7 +233,7 @@ public class RedisUtil {
      * @param cacheSeconds 超时时间，0为不超时
      * @return
      */
-    public static boolean set(String key, String value, int cacheSeconds) {
+    public  boolean set(String key, String value, int cacheSeconds) {
         Jedis jedis = null;
         try {
             jedis = getJedis();
@@ -259,7 +262,7 @@ public class RedisUtil {
      * T string calss
      * @return
      */
-    public static <T> boolean setList(String key,List<T> list){
+    public  <T> boolean setList(String key,List<T> list){
         Jedis jedis = null;
         try {
             jedis = getJedis();
@@ -288,7 +291,7 @@ public class RedisUtil {
     //*************** 操作list****************end
     
     //*************** 操作map****************start
-    public static <K,V> boolean setMap(String key,Map<String,V> map){
+    public  <K,V> boolean setMap(String key,Map<String,V> map){
         Jedis jedis = null;
         try {
             jedis = getJedis();
@@ -316,7 +319,7 @@ public class RedisUtil {
         }
     }
     
-    public static boolean setMapKey(String key,String mapKey,Object value){
+    public  boolean setMapKey(String key,String mapKey,Object value){
         Jedis jedis = null;
         try {
             jedis = getJedis();
@@ -344,7 +347,7 @@ public class RedisUtil {
      * seconds key和value 保存的有效时间（单位：秒）
      * @return
      */
-    public static boolean setMapKeyExpire(String key,String mapKey,Object value, int seconds){
+    public  boolean setMapKeyExpire(String key,String mapKey,Object value, int seconds){
         Jedis jedis = null;
         try {
             jedis = getJedis();
@@ -369,7 +372,7 @@ public class RedisUtil {
         }
     }
     
-    public static boolean delMapKey(String key,String mapKey){
+    public  boolean delMapKey(String key,String mapKey){
         Jedis jedis = null;
         try {
             jedis = getJedis();
@@ -391,7 +394,7 @@ public class RedisUtil {
     /**
      * incr(key)：名称为key的string增1操作
      */
-    public static Long incr(String key){
+    public  Long incr(String key){
         Jedis jedis = null;
         try {
             jedis = getJedis();
@@ -407,7 +410,7 @@ public class RedisUtil {
     /**
      * incrby(key, integer)：名称为key的string增加integer
      */
-    public static boolean incrBy(String key, int value){
+    public  boolean incrBy(String key, int value){
         Jedis jedis = null;
         try {
             jedis = getJedis();
@@ -424,7 +427,7 @@ public class RedisUtil {
     /**
      * decr(key)：名称为key的string减1操作
      */
-    public static Long decr(String key){
+    public  Long decr(String key){
         Jedis jedis = null;
         try {
             jedis = getJedis();
@@ -440,7 +443,7 @@ public class RedisUtil {
     /**
      * decrby(key, integer)：名称为key的string减少integer
      */
-    public static boolean decrBy(String key, int value){
+    public  boolean decrBy(String key, int value){
         Jedis jedis = null;
         try {
             jedis = getJedis();
@@ -460,7 +463,7 @@ public class RedisUtil {
      * 向名称为key的zset中添加元素member，score用于排序。
      * 如果该元素已经存在，则根据score更新该元素的顺序
      */
-    public static boolean zadd(String key, double score, String member){
+    public  boolean zadd(String key, double score, String member){
         Jedis jedis = null;
         try {
             jedis = getJedis();
@@ -477,7 +480,7 @@ public class RedisUtil {
     /**
      * 删除名称为key的zset中的元素member
      */
-    public static boolean zrem(String key, String... members){
+    public  boolean zrem(String key, String... members){
         Jedis jedis = null;
         try {
             jedis = getJedis();
@@ -495,7 +498,7 @@ public class RedisUtil {
     
     //***************sorted set 处理***************************************begin
     //zset 处理
-    public static boolean zaddObject(String key, double score, Object value){
+    public  boolean zaddObject(String key, double score, Object value){
         Jedis jedis = null;
         try {
             jedis = getJedis();
@@ -511,7 +514,7 @@ public class RedisUtil {
     }
     
     //删除 元素
-    public static  boolean zremObject(String key, Object value){
+    public   boolean zremObject(String key, Object value){
         Jedis jedis = null;
         try {
             jedis = getJedis();
@@ -535,7 +538,7 @@ public class RedisUtil {
      * @param value
      * @return
      */
-    public static boolean sadd(String key, String value) {
+    public  boolean sadd(String key, String value) {
         Jedis jedis = null;
         try {
             jedis = getJedis();
@@ -556,7 +559,7 @@ public class RedisUtil {
      * @param value
      * @return
      */
-    public static boolean srem(String key, String value) {
+    public  boolean srem(String key, String value) {
         Jedis jedis = null;
         try {
             jedis = getJedis();
@@ -577,7 +580,7 @@ public class RedisUtil {
      * @param key2
      * @return
      */
-    public static Set<String> sdiff(String key1, String key2) {
+    public  Set<String> sdiff(String key1, String key2) {
         Jedis jedis = null;
         Set<String> diffList = null;
         try {
@@ -597,7 +600,7 @@ public class RedisUtil {
      * @param key
      * @return
      */
-    public static Set<String> smembers(String key) {
+    public  Set<String> smembers(String key) {
         Jedis jedis = null;
         Set<String> list = null;
         try {

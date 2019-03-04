@@ -3,7 +3,6 @@ package com.miaosha.order.jms;
 import javax.jms.*;
 
 import com.alibaba.fastjson.JSONObject;
-import com.miaosha.common.redis.CommonMethod;
 import com.miaosha.common.redis.RedisKeyPrefix;
 import com.miaosha.common.redis.RedisUtil;
 import com.miaosha.order.OrderLog;
@@ -56,7 +55,7 @@ public class MiaoshaQueueMessageListener implements MessageListener {
                     //设置用户是否已经秒杀成功过某个商品的标记
                     //RedisUtil.set(CommonMethod.getMiaoshaOrderRedisKey(String.valueOf(order.getUserId()), String.valueOf(productId)), realOrder);
                     //删除排队标记
-                    RedisUtil.del(CommonMethod.getMiaoshaOrderWaitFlagRedisKey(String.valueOf(order.getUserId()), String.valueOf(productId)));
+                    //RedisUtil.del(CommonMethod.getMiaoshaOrderWaitFlagRedisKey(String.valueOf(order.getUserId()), String.valueOf(productId)));
                 } catch (Exception e) {
                     e.printStackTrace();
                     //还原缓存里的库存并清除内存里的商品售完标记
@@ -66,7 +65,7 @@ public class MiaoshaQueueMessageListener implements MessageListener {
                     }
                 } finally {
                     //删除排队标记
-                    RedisUtil.del(CommonMethod.getMiaoshaOrderWaitFlagRedisKey(String.valueOf(order.getUserId()), String.valueOf(productId)));
+                    //RedisUtil.del(CommonMethod.getMiaoshaOrderWaitFlagRedisKey(String.valueOf(order.getUserId()), String.valueOf(productId)));
                 }
             }
         });

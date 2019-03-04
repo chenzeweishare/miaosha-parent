@@ -19,11 +19,14 @@ public class ProductController {
     @Autowired
     private ProductService productService;
 
+    @Autowired
+    private RedisUtil redisUtil;
+
     @PostConstruct
     private void init(){
         List<Product> miaoshaProducts = productService.getProducts();
         for (Product product : miaoshaProducts) {
-            RedisUtil.set(RedisKeyPrefix.PRODUCT_STOCK + "_" + product.getId(), String.valueOf(product.getStock()));
+            redisUtil.set(RedisKeyPrefix.PRODUCT_STOCK + "_" + product.getId(), String.valueOf(product.getStock()));
         }
     }
 
