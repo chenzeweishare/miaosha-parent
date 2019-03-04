@@ -27,7 +27,7 @@ public class MiaoshaQueueMessageListener implements MessageListener {
     private OrderLogService orderService;
 
     /**
-     * 这里获取不对
+     * 采用ThreadPoolExecutor方法更加专业;
      */
     @Autowired
     private ThreadPoolTaskExecutor threadPool;
