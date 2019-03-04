@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.miaosha.common.exception.MiaoShaException;
-import com.miaosha.common.redis.CommonMethod;
 import com.miaosha.common.redis.RedisKeyPrefix;
 import com.miaosha.common.redis.RedisUtil;
 import com.miaosha.common.result.Message;
@@ -102,9 +101,9 @@ public class OrderController {
             throw new MiaoShaException("商品已抢完");
         }
         //设置排队标记，超时时间根据业务情况决定，类似分布式锁
-        if (RedisUtil.set(CommonMethod.getMiaoshaOrderWaitFlagRedisKey(1000 + "", String.valueOf(productId)), "", "NX", "EX", 60)) {
-            Result.getErrorMessage("排队中，请耐心等待");
-        }
+        //if (RedisUtil.set(CommonMethod.getMiaoshaOrderWaitFlagRedisKey(1000 + "", String.valueOf(productId)), "", "NX", "EX", 60)) {
+        //    Result.getErrorMessage("排队中，请耐心等待");
+        //}
 
         Long stock = RedisUtil.decr(RedisKeyPrefix.PRODUCT_STOCK + "_" + productId);
         if (stock == null) {

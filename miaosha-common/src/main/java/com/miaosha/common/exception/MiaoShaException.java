@@ -1,7 +1,7 @@
 package com.miaosha.common.exception;
 
 
-import com.miaosha.common.ErrorEnum;
+import com.miaosha.common.eum.ErrorEnum;
 
 public class MiaoShaException extends RuntimeException{
 
