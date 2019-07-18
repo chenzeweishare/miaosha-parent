@@ -1,14 +1,10 @@
 package com.miaosha.order.controller;
 
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 
-import com.miaosha.common.redis.RedisKeyPrefix;
-import com.miaosha.common.redis.RedisUtil;
 import com.miaosha.common.result.Message;
 import com.miaosha.common.result.Result;
 import com.miaosha.order.OrderLog;
-import com.miaosha.order.jms.Producer;
 import com.miaosha.order.service.OrderLogService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,16 +17,13 @@ public class OrderController {
     @Autowired
     private OrderLogService orderLogService;
 
-    @Autowired
-    private Producer producer;
+//    @Autowired
+//    private RedisUtil redisUtil;
 
-    @Autowired
-    private RedisUtil redisUtil;
-
-    /**
-     * jvm速度快于redis
-     */
-    public static ConcurrentHashMap<Long, Boolean> productSoldOutMap = new ConcurrentHashMap<>();
+//    /**
+//     * jvm速度快于redis
+//     */
+//    public static ConcurrentHashMap<Long, Boolean> productSoldOutMap = new ConcurrentHashMap<>();
 
 
     /**
@@ -63,40 +56,40 @@ public class OrderController {
      * @param productId
      * @return
      */
-    @GetMapping("/order/miaosha/save")
-    public Message createOrderLog(@RequestParam Long productId) {
-        if (productSoldOutMap.get(productId) != null) {
-            Result.getErrorMessage("商品已抢完");
-        }
-        Long stock = redisUtil.decr(RedisKeyPrefix.PRODUCT_STOCK + "_" + productId);
-        if (stock == null) {
-            Result.getErrorMessage("商品数据还未准备好");
-        }
-        if (stock < 0) {
-            redisUtil.incr(RedisKeyPrefix.PRODUCT_STOCK + "_" + productId);
-            productSoldOutMap.put(productId, true);
-            Result.getErrorMessage("商品已抢完");
-        }
-        OrderLog orderLog = null;
-        try {
-            orderLog = orderLogService.createOrderLog(productId, 1000L);
-        } catch (Exception e) {
-            //TODO 这里存在一定问题, 如果是失败, 这边就incr
-            redisUtil.incr(RedisKeyPrefix.PRODUCT_STOCK + "_" + productId);
-            productSoldOutMap.remove(productId);
-            e.printStackTrace();
-        }
-        return Result.getMessage(orderLog);
-    }
+//    @GetMapping("/order/miaosha/save")
+//    public Message createOrderLog(@RequestParam Long productId) {
+//        if (productSoldOutMap.get(productId) != null) {
+//            Result.getErrorMessage("商品已抢完");
+//        }
+//        Long stock = redisUtil.decr(RedisKeyPrefix.PRODUCT_STOCK + "_" + productId);
+//        if (stock == null) {
+//            Result.getErrorMessage("商品数据还未准备好");
+//        }
+//        if (stock < 0) {
+//            redisUtil.incr(RedisKeyPrefix.PRODUCT_STOCK + "_" + productId);
+//            productSoldOutMap.put(productId, true);
+//            Result.getErrorMessage("商品已抢完");
+//        }
+//        OrderLog orderLog = null;
+//        try {
+//            orderLog = orderLogService.createOrderLog(productId, 1000L);
+//        } catch (Exception e) {
+//            这里存在一定问题, 如果是失败, 这边就incr
+//            redisUtil.incr(RedisKeyPrefix.PRODUCT_STOCK + "_" + productId);
+//            productSoldOutMap.remove(productId);
+//            e.printStackTrace();
+//        }
+//        return Result.getMessage(orderLog);
+//    }
 
 
-    /**
-     * 如上述的方法, 只不过新增队列
-     * @param productId
-     * @return
-     */
-    @GetMapping("/order/miaosha/v2/save")
-    public Message createOrderLogV2(@RequestParam Long productId) {
+//    /**
+//     * 如上述的方法, 只不过新增队列
+//     * @param productId
+//     * @return
+//     */
+//    @GetMapping("/order/miaosha/v2/save")
+//    public Message createOrderLogV2(@RequestParam Long productId) {
         //if (productSoldOutMap.get(productId) != null) {
         //    Result.getErrorMessage("商品已抢完");
         //}
@@ -114,13 +107,13 @@ public class OrderController {
 //            productSoldOutMap.put(productId, true);
 //            Result.getErrorMessage("商品已抢完");
 //        }
-        OrderLog orderLog = OrderLog.builder()
-                .userId(1000L)
-                .productId(productId)
-                .build();
-        producer.send(orderLog);
-        return Result.getMessage("已经进入队列中, 请稍后查看订单");
-    }
+//        OrderLog orderLog = OrderLog.builder()
+//                .userId(1000L)
+//                .productId(productId)
+//                .build();
+//        producer.send(orderLog);
+//        return Result.getMessage("已经进入队列中, 请稍后查看订单");
+//    }
 
 
     @GetMapping("/order/list")

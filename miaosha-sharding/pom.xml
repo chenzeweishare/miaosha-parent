@@ -12,16 +12,15 @@
     <artifactId>miaosha-sharding</artifactId>
 
     <dependencies>
+        <!--<dependency>-->
+            <!--<groupId>io.shardingsphere</groupId>-->
+            <!--<artifactId>sharding-jdbc-spring-namespace</artifactId>-->
+            <!--<version>3.0.0.M4</version>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>io.shardingsphere</groupId>
-            <artifactId>sharding-jdbc-spring-namespace</artifactId>
+            <artifactId>sharding-jdbc-core</artifactId>
             <version>3.0.0.M4</version>
-        </dependency>
-
-        <!--db-->
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
         </dependency>
     </dependencies>
 </project>

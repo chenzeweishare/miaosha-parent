@@ -17,6 +17,12 @@
             <artifactId>spring-cloud-starter-netflix-zuul</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.miaosha</groupId>
+            <artifactId>miaosha-common</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
         <!--db-->
         <dependency>
             <groupId>com.h2database</groupId>
