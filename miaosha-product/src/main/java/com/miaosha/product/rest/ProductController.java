@@ -1,5 +1,6 @@
 package com.miaosha.product.rest;
 
+import com.miaosha.common.redis.RedisUtils;
 import com.miaosha.product.Product;
 import com.miaosha.product.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,16 +14,9 @@ public class ProductController {
     @Autowired
     private ProductService productService;
 
-//    @Autowired
-//    private RedisUtil redisUtil;
+    @Autowired
+    private RedisUtils redisUtils;
 
-//    @PostConstruct
-//    private void init(){
-//        List<Product> miaoshaProducts = productService.getProducts();
-//        for (Product product : miaoshaProducts) {
-//            redisUtil.set(RedisKeyPrefix.PRODUCT_STOCK + "_" + product.getId(), String.valueOf(product.getStock()));
-//        }
-//    }
 
     /**
      * 查看商品详情
@@ -31,7 +25,13 @@ public class ProductController {
      */
     @GetMapping("/product/info")
     public Product getProduct(@RequestParam Long id) {
+        handleRedis();
         return productService.getProduct(id);
+    }
+
+    private void handleRedis() {
+        redisUtils.set("name", "张三");
+        System.out.println(redisUtils.get("name"));
     }
 
 

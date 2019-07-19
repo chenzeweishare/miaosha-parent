@@ -12,5 +12,11 @@
     <artifactId>redis</artifactId>
     <version>1.0.0-SNAPSHOT</version>
 
-
+    <dependencies>
+        <!--db-->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+        </dependency>
+    </dependencies>
 </project>

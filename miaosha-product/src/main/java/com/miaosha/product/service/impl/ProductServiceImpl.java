@@ -20,13 +20,13 @@ public class ProductServiceImpl implements ProductService {
     private ProductDao productDao;
 
     @Override
-    public Product getProduct(Long id) {
-        return productDao.findOne(id);
+    public int modifyDownProductStock(Long id) {
+        return productDao.modifyDownProductStock(id);
     }
 
     @Override
-    public int modifyDownProductStock(Long id) {
-        return productDao.modifyDownProductStock(id);
+    public Product getProduct(Long id) {
+        return productDao.findOne(id);
     }
 
     @Override

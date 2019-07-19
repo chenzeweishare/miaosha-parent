@@ -1,5 +1,6 @@
 package com.miaosha.product;
 
+import com.miaosha.common.redis.RedisUtils;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -27,32 +28,12 @@ public class ProductApplication {
         return new RestTemplate();
     }
 
-    /**
-     * 默认配置和端口
-     * @return
-     */
-//    @Bean
-//    public JedisPool getJedisPool(){
-//        JedisPoolConfig poolConfig=new JedisPoolConfig();
-//        poolConfig.setMaxIdle(5);
-//        poolConfig.setMinIdle(1);
-//        poolConfig.setTestOnBorrow(true);
-//        poolConfig.setTestOnReturn(true);
-//        poolConfig.setTestWhileIdle(true);
-//        poolConfig.setNumTestsPerEvictionRun(10);
-//        poolConfig.setTimeBetweenEvictionRunsMillis(60000);
-//        JedisPool pool = new JedisPool(poolConfig, "127.0.0.1",  6379,1000);
-//        Jedis resource = pool.getResource();
-//        log.info("resource, {}", resource);
-//        log.error("initJedisPool" );
-//        return pool;
-//    }
-//
-//    @Bean
-//    public RedisUtil  redisUtil(){
-//        log.error("initRedisUtil" );
-//        return new RedisUtil();
-//    }
+
+    @Bean
+    public RedisUtils redisUtils() {
+        log.error("initRedisUtil" );
+        return new RedisUtils();
+    }
 
 
     public static void main(String[] args) {
