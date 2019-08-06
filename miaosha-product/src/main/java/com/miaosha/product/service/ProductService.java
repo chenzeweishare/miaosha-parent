@@ -17,4 +17,6 @@ public interface ProductService {
     int modifyUpProductStock(Long id);
 
     List<Product> getProducts();
+
+    void saveProduct(Product product);
 }

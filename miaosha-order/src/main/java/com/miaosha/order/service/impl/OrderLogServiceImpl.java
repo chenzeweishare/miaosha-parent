@@ -3,15 +3,17 @@ package com.miaosha.order.service.impl;
 
 import java.util.List;
 
+import com.alibaba.fescar.spring.annotation.GlobalTransactional;
 import com.miaosha.common.exception.MiaoShaException;
 import com.miaosha.order.OrderLog;
 import com.miaosha.order.dao.OrderLogDao;
 import com.miaosha.order.feign.ProductFeignClient;
 import com.miaosha.order.service.OrderLogService;
 import com.miaosha.product.Product;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author czw
@@ -26,8 +28,8 @@ public class OrderLogServiceImpl implements OrderLogService {
     @Autowired
     private ProductFeignClient productFeignClient;
 
-//    @Autowired
-//    private RedissonClient redissonClient;
+    @Autowired
+    private RedissonClient redissonClient;
 
     @Override
     public OrderLog getOrderLog(Long id) {
@@ -49,14 +51,13 @@ public class OrderLogServiceImpl implements OrderLogService {
      * @param userId
      * @return
      */
-    @Transactional
-    //@GlobalTransactional(timeoutMills = 300000, name = "create-order-tx")
+    //@Transactional
+    @GlobalTransactional(timeoutMills = 300000, name = "create-order-tx")
     @Override
     public OrderLog saveOrderLog(Long productId, Long userId) {
-        //String lockKey = "orderKey";
-        //RLock lock = redissonClient.getLock("lockKey");
-        //lock.lock();
-        //try {
+        RLock lock = redissonClient.getLock("lockKey");
+        lock.lock();
+        try {
             Product product = productFeignClient.getProduct(productId);
             if (null == product) {
                 throw new MiaoShaException("无相关的商品");
@@ -71,6 +72,7 @@ public class OrderLogServiceImpl implements OrderLogService {
                     .name(product.getName())
                     .build();
             orderLogDao.save(orderLog);
+            System.out.println("订单ID为:" + orderLog.getId());
             if (orderLog.getId() == null || orderLog.getId() < 0) {
                 throw new MiaoShaException("创建订单失败, 请稍后再试");
             }
@@ -78,11 +80,11 @@ public class OrderLogServiceImpl implements OrderLogService {
             if (count != 1) {
                 throw new MiaoShaException("创建订单成功, 扣减库存失败");
             }
-            //int error = 10 / 0;
+            int error = 10 / 0;
             return orderLog;
-        //} finally {
-        //    lock.unlock();
-        //}
+        } finally {
+            lock.unlock();
+        }
     }
 
 

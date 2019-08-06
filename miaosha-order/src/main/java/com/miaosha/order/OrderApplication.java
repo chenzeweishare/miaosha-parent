@@ -2,8 +2,12 @@ package com.miaosha.order;
 
 import javax.jms.Queue;
 
+import com.miaosha.common.redis.RedisUtils;
 import lombok.extern.log4j.Log4j2;
 import org.apache.activemq.command.ActiveMQQueue;
+import org.redisson.Redisson;
+import org.redisson.api.RedissonClient;
+import org.redisson.config.Config;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
@@ -30,40 +34,19 @@ public class OrderApplication {
         return new RestTemplate();
     }
 
-//    @Bean
-//    public RedissonClient getRedissonClient(){
-//        Config config = new Config();
-//        //指定使用单节点部署方式
-//        config.useSingleServer().setAddress("redis://127.0.0.1:6379");
-//        return Redisson.create(config);
-//    }
+    @Bean
+    public RedissonClient getRedissonClient(){
+        Config config = new Config();
+        //指定使用单节点部署方式
+        config.useSingleServer().setAddress("redis://127.0.0.1:6379");
+        return Redisson.create(config);
+    }
 
-//    /**
-//     * 默认配置和端口
-//     * @return
-//     */
-//    @Bean
-//    public JedisPool getJedisPool(){
-//        JedisPoolConfig poolConfig=new JedisPoolConfig();
-//        poolConfig.setMaxIdle(5);
-//        poolConfig.setMinIdle(1);
-//        poolConfig.setTestOnBorrow(true);
-//        poolConfig.setTestOnReturn(true);
-//        poolConfig.setTestWhileIdle(true);
-//        poolConfig.setNumTestsPerEvictionRun(10);
-//        poolConfig.setTimeBetweenEvictionRunsMillis(60000);
-//        JedisPool pool = new JedisPool(poolConfig, "127.0.0.1",  6379,1000);
-//        Jedis resource = pool.getResource();
-//        log.info("resource, {}", resource);
-//        log.error("initJedisPool" );
-//        return pool;
-//    }
-//
-//    @Bean
-//    public RedisUtil redisUtil(){
-//        log.error("initRedisUtil" );
-//        return new RedisUtil();
-//    }
+    @Bean
+    public RedisUtils redisUtils(){
+        log.error("initRedisUtil" );
+        return new RedisUtils();
+    }
 
     @Bean
     public Queue queue() {

@@ -1,7 +1,10 @@
 package com.miaosha.order.controller;
 
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
+import com.miaosha.common.redis.RedisKeyPrefix;
+import com.miaosha.common.redis.RedisUtils;
 import com.miaosha.common.result.Message;
 import com.miaosha.common.result.Result;
 import com.miaosha.order.OrderLog;
@@ -17,13 +20,15 @@ public class OrderController {
     @Autowired
     private OrderLogService orderLogService;
 
-//    @Autowired
-//    private RedisUtil redisUtil;
 
-//    /**
-//     * jvm速度快于redis
-//     */
-//    public static ConcurrentHashMap<Long, Boolean> productSoldOutMap = new ConcurrentHashMap<>();
+    @Autowired
+    private RedisUtils redisUtils;
+
+    /**
+     * jvm速度快于redis
+     */
+    public static ConcurrentHashMap<Long, Boolean> productSoldOutMap = new ConcurrentHashMap<>();
+
 
 
     /**
@@ -56,48 +61,48 @@ public class OrderController {
      * @param productId
      * @return
      */
-//    @GetMapping("/order/miaosha/save")
-//    public Message createOrderLog(@RequestParam Long productId) {
-//        if (productSoldOutMap.get(productId) != null) {
-//            Result.getErrorMessage("商品已抢完");
-//        }
-//        Long stock = redisUtil.decr(RedisKeyPrefix.PRODUCT_STOCK + "_" + productId);
-//        if (stock == null) {
-//            Result.getErrorMessage("商品数据还未准备好");
-//        }
-//        if (stock < 0) {
-//            redisUtil.incr(RedisKeyPrefix.PRODUCT_STOCK + "_" + productId);
-//            productSoldOutMap.put(productId, true);
-//            Result.getErrorMessage("商品已抢完");
-//        }
-//        OrderLog orderLog = null;
-//        try {
-//            orderLog = orderLogService.createOrderLog(productId, 1000L);
-//        } catch (Exception e) {
-//            这里存在一定问题, 如果是失败, 这边就incr
-//            redisUtil.incr(RedisKeyPrefix.PRODUCT_STOCK + "_" + productId);
-//            productSoldOutMap.remove(productId);
-//            e.printStackTrace();
-//        }
-//        return Result.getMessage(orderLog);
-//    }
+    @GetMapping("/order/miaosha/save")
+    public Message createOrderLog(@RequestParam Long productId) {
+        if (productSoldOutMap.get(productId) != null) {
+            Result.getErrorMessage("商品已抢完");
+        }
+        Long stock = redisUtils.incrBy(RedisKeyPrefix.PRODUCT_STOCK + "_" + productId, -1);
+        if (stock == null) {
+            Result.getErrorMessage("商品数据还未准备好");
+        }
+        if (stock < 0) {
+            redisUtils.incrBy(RedisKeyPrefix.PRODUCT_STOCK + "_" + productId, 1);
+            productSoldOutMap.put(productId, true);
+            Result.getErrorMessage("商品已抢完");
+        }
+        OrderLog orderLog = null;
+        try {
+            orderLog = orderLogService.createOrderLog(productId, 1000L);
+        } catch (Exception e) {
+           // 这里存在一定问题, 如果是失败, 这边就incr
+            redisUtils.incrBy(RedisKeyPrefix.PRODUCT_STOCK + "_" + productId, 1);
+            productSoldOutMap.remove(productId);
+            e.printStackTrace();
+        }
+        return Result.getMessage(orderLog);
+    }
 
 
-//    /**
-//     * 如上述的方法, 只不过新增队列
-//     * @param productId
-//     * @return
-//     */
-//    @GetMapping("/order/miaosha/v2/save")
-//    public Message createOrderLogV2(@RequestParam Long productId) {
-        //if (productSoldOutMap.get(productId) != null) {
-        //    Result.getErrorMessage("商品已抢完");
-        //}
+    /**
+     * 和上述的方法一样, 只不过新增队列
+     * @param productId
+     * @return
+     */
+    @GetMapping("/order/miaosha/v2/save")
+    public Message createOrderLogV2(@RequestParam Long productId) {
+        if (productSoldOutMap.get(productId) != null) {
+            Result.getErrorMessage("商品已抢完");
+        }
         //设置排队标记，超时时间根据业务情况决定，类似分布式锁
-        //if (RedisUtil.set(CommonMethod.getMiaoshaOrderWaitFlagRedisKey(1000 + "", String.valueOf(productId)), "", "NX", "EX", 60)) {
-        //    Result.getErrorMessage("排队中，请耐心等待");
-        //}
-
+//        if (RedisUtils.set(CommonMethod.getMiaoshaOrderWaitFlagRedisKey(1000 + "", String.valueOf(productId)), "", "NX", "EX", 60)) {
+//            Result.getErrorMessage("排队中，请耐心等待");
+//        }
+//
 //        Long stock = redisUtil.decr(RedisKeyPrefix.PRODUCT_STOCK + "_" + productId);
 //        if (null == stock) {
 //            Result.getErrorMessage("商品数据还未准备好");
@@ -112,8 +117,8 @@ public class OrderController {
 //                .productId(productId)
 //                .build();
 //        producer.send(orderLog);
-//        return Result.getMessage("已经进入队列中, 请稍后查看订单");
-//    }
+          return Result.getMessage("已经进入队列中, 请稍后查看订单");
+    }
 
 
     @GetMapping("/order/list")
