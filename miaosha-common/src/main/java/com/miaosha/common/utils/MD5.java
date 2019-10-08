@@ -8,7 +8,6 @@ public class MD5 {
 
 	/**
      * 对key进行md5加密
-     *
      * @param key
      * @return
      * @author ych
